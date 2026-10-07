@@ -201,6 +201,17 @@ CREATE TABLE "ProductConfig" (
     CONSTRAINT "ProductConfig_pkey" PRIMARY KEY ("id")
 );
 
+
+CREATE TABLE "EmailSuppression" (
+    "id" TEXT NOT NULL,
+    "shop" TEXT NOT NULL,
+    "emailHash" TEXT NOT NULL,
+    "reason" TEXT NOT NULL DEFAULT 'UNSUBSCRIBED',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "EmailSuppression_pkey" PRIMARY KEY ("id")
+);
+
 CREATE TABLE "ImportJob" (
     "id" TEXT NOT NULL,
     "shop" TEXT NOT NULL,
@@ -277,6 +288,7 @@ CREATE UNIQUE INDEX "ReviewRequest_tokenHash_key" ON "ReviewRequest"("tokenHash"
 CREATE UNIQUE INDEX "MediaUpload_tokenHash_key" ON "MediaUpload"("tokenHash");
 CREATE UNIQUE INDEX "MerchantReply_reviewId_key" ON "MerchantReply"("reviewId");
 CREATE UNIQUE INDEX "HelpfulVote_reviewId_fingerprint_key" ON "HelpfulVote"("reviewId", "fingerprint");
+CREATE UNIQUE INDEX "EmailSuppression_shop_emailHash_key" ON "EmailSuppression"("shop", "emailHash");
 CREATE UNIQUE INDEX "CollectionSettings_shop_key" ON "CollectionSettings"("shop");
 CREATE UNIQUE INDEX "WidgetTheme_shop_key" ON "WidgetTheme"("shop");
 CREATE UNIQUE INDEX "ProductConfig_shop_productId_key" ON "ProductConfig"("shop", "productId");
@@ -302,6 +314,7 @@ CREATE INDEX "ProductConfig_shop_enabled_idx" ON "ProductConfig"("shop", "enable
 CREATE INDEX "ReviewRequest_shop_status_sendAfter_idx" ON "ReviewRequest"("shop", "status", "sendAfter");
 CREATE INDEX "ReviewRequest_shop_orderId_idx" ON "ReviewRequest"("shop", "orderId");
 CREATE INDEX "ReviewRequest_shop_emailHash_idx" ON "ReviewRequest"("shop", "emailHash");
+CREATE INDEX "EmailSuppression_shop_createdAt_idx" ON "EmailSuppression"("shop", "createdAt");
 CREATE INDEX "ImportJob_shop_createdAt_idx" ON "ImportJob"("shop", "createdAt");
 CREATE INDEX "AnalyticsEvent_shop_createdAt_idx" ON "AnalyticsEvent"("shop", "createdAt");
 CREATE INDEX "AnalyticsEvent_shop_type_createdAt_idx" ON "AnalyticsEvent"("shop", "type", "createdAt");
