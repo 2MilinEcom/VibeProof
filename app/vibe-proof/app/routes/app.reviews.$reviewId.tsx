@@ -4,6 +4,7 @@ import { Form, redirect, useLoaderData } from "react-router";
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 import { GENUINE_REVIEW_SOURCES } from "../lib/constants.server";
+import { destroyMediaAssets } from "../lib/media.server";
 
 const genuineSource = { in: [...GENUINE_REVIEW_SOURCES] };
 
@@ -156,6 +157,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 
   if (intent === "delete_review") {
+    const media = await prisma.reviewMedia.findMany({
+      where: { reviewId: review.id },
+      select: { publicId: true, type: true },
+    });
+    await destroyMediaAssets(media);
     await prisma.review.delete({ where: { id: review.id } });
     return redirect("/app/reviews");
   }
