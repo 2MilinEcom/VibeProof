@@ -1,12 +1,10 @@
-// This is your Prisma schema file.
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -27,36 +25,49 @@ model Session {
   emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+
+  @@index([shop])
 }
 
 model Review {
-  id            String  @id @default(cuid())
-  shop          String
-  productId     String
-  productHandle String?
-  productTitle  String?
-  variantId     String?
-  variantTitle  String?
+  id                String   @id @default(cuid())
+  shop              String
+  productId         String
+  productHandle     String?
+  productTitle      String?
+  variantId         String?
+  variantTitle      String?
+  orderId           String?
+  reviewRequestId   String?  @unique
 
-  rating        Int
-  title         String?
-  body          String
-  reviewerName  String
-  reviewerEmail String?
+  rating            Int
+  title             String?
+  body              String
+  reviewerName      String
+  reviewerEmail     String?
+  reviewerEmailHash String?
+  locale            String?
 
-  verifiedPurchase Boolean @default(false)
-  status           String  @default("PENDING")
-  source           String  @default("CUSTOMER")
-  helpfulCount     Int     @default(0)
-  featured         Boolean @default(false)
-  demoBatchId      String?
+  verifiedPurchase  Boolean  @default(false)
+  verifiedAt        DateTime?
+  status            String   @default("PENDING")
+  source            String   @default("CUSTOMER")
+  helpfulCount      Int      @default(0)
+  featured          Boolean  @default(false)
+  demoBatchId       String?
+  spamScore         Int      @default(0)
+  spamReason        String?
+  moderationNotes   String?
+  ipHash            String?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  publishedAt DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  publishedAt       DateTime?
 
-  media         ReviewMedia[]
-  merchantReply MerchantReply?
+  media             ReviewMedia[]
+  merchantReply     MerchantReply?
+  helpfulVotes      HelpfulVote[]
+  reviewRequest     ReviewRequest? @relation(fields: [reviewRequestId], references: [id], onDelete: SetNull)
 
   @@index([shop, productId])
   @@index([shop, productHandle])
@@ -64,20 +75,46 @@ model Review {
   @@index([shop, source])
   @@index([shop, featured])
   @@index([shop, createdAt])
+  @@index([shop, reviewerEmailHash])
+  @@index([shop, orderId])
 }
 
 model ReviewMedia {
-  id        String   @id @default(cuid())
-  reviewId  String
-  type      String
-  url       String
-  altText   String?
-  position  Int      @default(0)
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  reviewId     String
+  type         String
+  url          String
+  publicId     String?
+  altText      String?
+  position     Int      @default(0)
+  status       String   @default("APPROVED")
+  bytes        Int?
+  width        Int?
+  height       Int?
+  durationMs   Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@index([reviewId, position])
+  @@index([reviewId, status])
+  @@index([publicId])
+}
+
+model MediaUpload {
+  id            String   @id @default(cuid())
+  shop          String
+  tokenHash     String   @unique
+  publicId      String
+  mimeType      String
+  resourceType  String
+  maxBytes      Int
+  completed     Boolean  @default(false)
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([shop, expiresAt])
 }
 
 model MerchantReply {
@@ -91,19 +128,37 @@ model MerchantReply {
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 }
 
+model HelpfulVote {
+  id          String   @id @default(cuid())
+  reviewId    String
+  fingerprint String
+  createdAt   DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, fingerprint])
+  @@index([createdAt])
+}
+
 model CollectionSettings {
-  id                  String   @id @default(cuid())
-  shop                String   @unique
-  collectRating       Boolean  @default(true)
-  collectTitle        Boolean  @default(true)
-  collectBody         Boolean  @default(true)
-  collectEmail        Boolean  @default(true)
-  collectPhoto        Boolean  @default(true)
-  collectVideo        Boolean  @default(false)
-  requireEmail        Boolean  @default(true)
-  autoApproveFiveStar Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                         String   @id @default(cuid())
+  shop                       String   @unique
+  collectRating              Boolean  @default(true)
+  collectTitle               Boolean  @default(true)
+  collectBody                Boolean  @default(true)
+  collectEmail               Boolean  @default(true)
+  collectPhoto               Boolean  @default(true)
+  collectVideo               Boolean  @default(true)
+  requireEmail               Boolean  @default(true)
+  autoApproveFiveStar        Boolean  @default(false)
+  maxMediaItems              Int      @default(4)
+  enablePostPurchaseRequests Boolean  @default(true)
+  requestDelayDays           Int      @default(7)
+  reminderDelayDays          Int      @default(5)
+  maxReminders               Int      @default(1)
+  autoVerifyOrders           Boolean  @default(true)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
 }
 
 model WidgetTheme {
@@ -120,7 +175,11 @@ model WidgetTheme {
   showVerified        Boolean  @default(true)
   showHelpful         Boolean  @default(true)
   showMerchantReplies Boolean  @default(true)
+  showFilters         Boolean  @default(true)
+  showRatingBreakdown Boolean  @default(true)
+  autoplayVideo       Boolean  @default(false)
   autoMatch           Boolean  @default(true)
+  defaultSort         String   @default("FEATURED")
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
@@ -143,15 +202,103 @@ model ProductConfig {
   @@index([shop, enabled])
 }
 
+model ReviewRequest {
+  id            String   @id @default(cuid())
+  shop          String
+  orderId       String
+  productId     String
+  productHandle String?
+  productTitle  String?
+  variantId     String?
+  variantTitle  String?
+  customerEmail String
+  emailHash     String
+  tokenHash     String   @unique
+  status        String   @default("PENDING")
+  reminderCount Int      @default(0)
+  sendAfter     DateTime
+  sentAt        DateTime?
+  openedAt      DateTime?
+  completedAt   DateTime?
+  expiresAt     DateTime
+  lastError     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  review Review?
+
+  @@index([shop, status, sendAfter])
+  @@index([shop, orderId])
+  @@index([shop, emailHash])
+}
+
+model ImportJob {
+  id            String   @id @default(cuid())
+  shop          String
+  provider      String   @default("CSV")
+  filename      String?
+  status        String   @default("PROCESSING")
+  totalRows     Int      @default(0)
+  importedRows  Int      @default(0)
+  skippedRows   Int      @default(0)
+  errorRows     Int      @default(0)
+  errorSummary  String?
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  @@index([shop, createdAt])
+}
+
 model AnalyticsEvent {
-  id        String   @id @default(cuid())
-  shop      String
-  type      String
-  productId String?
-  reviewId  String?
-  metadata  String?
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  shop          String
+  type          String
+  productId     String?
+  productHandle String?
+  reviewId      String?
+  anonymousId   String?
+  sessionId     String?
+  metadata      String?
+  createdAt     DateTime @default(now())
 
   @@index([shop, createdAt])
   @@index([shop, type, createdAt])
+  @@index([shop, productId, createdAt])
+}
+
+model RateLimitBucket {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}
+
+model PrivacyRequest {
+  id          String   @id @default(cuid())
+  shop        String
+  topic       String
+  requestId   String?
+  status      String   @default("RECEIVED")
+  summary     String?
+  receivedAt  DateTime @default(now())
+  completedAt DateTime?
+
+  @@index([shop, receivedAt])
+}
+
+model ShopConfig {
+  id                    String   @id @default(cuid())
+  shop                  String   @unique
+  onboardingComplete    Boolean  @default(false)
+  planHandle            String?
+  emailRequestsEnabled  Boolean  @default(true)
+  aiEnabled             Boolean  @default(true)
+  mediaEnabled          Boolean  @default(true)
+  retentionDays         Int      @default(730)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
