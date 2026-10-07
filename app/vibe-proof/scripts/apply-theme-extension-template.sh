@@ -19,8 +19,6 @@ fi
 
 mkdir -p "$TARGET/blocks" "$TARGET/assets"
 
-# Remove generated sample files while preserving Shopify's extension config
-# and locale files.
 find "$TARGET/blocks" -maxdepth 1 -type f -name '*.liquid' -delete
 find "$TARGET/assets" -maxdepth 1 -type f -delete
 rm -f "$TARGET/snippets/stars.liquid"
@@ -35,11 +33,15 @@ if [ ! -x "$ESBUILD" ]; then
   exit 1
 fi
 
-"$ESBUILD" "$TARGET/assets/vibeproof.js"   --minify   --outfile="$TARGET/assets/vibeproof.min.js"
-
-mv "$TARGET/assets/vibeproof.min.js" "$TARGET/assets/vibeproof.js"
+for file in "$TARGET"/assets/*.js; do
+  [ -f "$file" ] || continue
+  tmp="$file.min"
+  "$ESBUILD" "$file" --minify --outfile="$tmp"
+  mv "$tmp" "$file"
+done
 
 echo "Applied VibeProof theme app extension files to:"
 echo "  $TARGET"
 echo
-wc -c "$TARGET/assets/vibeproof.js"
+echo "JavaScript asset sizes:"
+wc -c "$TARGET"/assets/*.js
