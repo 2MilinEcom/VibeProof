@@ -18,6 +18,12 @@ if [ ! -d "$TARGET" ]; then
 fi
 
 mkdir -p "$TARGET/blocks" "$TARGET/assets"
+
+# Remove the generated sample block/assets while preserving Shopify's
+# extension config, locales, and directory structure.
+find "$TARGET/blocks" -maxdepth 1 -type f -name '*.liquid' -delete
+find "$TARGET/assets" -maxdepth 1 -type f -delete
+
 cp "$SOURCE"/blocks/*.liquid "$TARGET/blocks/"
 cp "$SOURCE"/assets/* "$TARGET/assets/"
 
