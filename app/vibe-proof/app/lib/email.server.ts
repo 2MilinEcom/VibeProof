@@ -3,6 +3,7 @@ type ReviewEmailInput = {
   shop: string;
   productTitle: string;
   reviewUrl: string;
+  unsubscribeUrl: string;
   reminder?: boolean;
 };
 
@@ -42,6 +43,7 @@ export async function sendReviewRequestEmail(input: ReviewEmailInput) {
           <p>Your feedback on <strong>${escapeHtml(input.productTitle)}</strong> helps future shoppers feel confident.</p>
           <p><a href="${escapeAttribute(input.reviewUrl)}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:12px 18px;border-radius:999px">Write a review</a></p>
           <p style="font-size:12px;color:#666">This request was sent because this email was used for an order from ${escapeHtml(input.shop)}.</p>
+          <p style="font-size:12px"><a href="${escapeAttribute(input.unsubscribeUrl)}">Stop receiving VibeProof review requests from this store</a></p>
         </div>
       `,
     }),
