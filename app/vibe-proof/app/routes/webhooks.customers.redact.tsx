@@ -1,0 +1,60 @@
+import type { ActionFunctionArgs } from "react-router";
+
+import prisma from "../db.server";
+import { authenticate } from "../shopify.server";
+import { destroyMediaAssets } from "../lib/media.server";
+import { hashValue, normalizeEmail } from "../lib/security.server";
+
+type Payload = {
+  customer?: { id?: string | number; email?: string | null };
+  orders_to_redact?: Array<string | number>;
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { payload, shop } = await authenticate.webhook(request);
+  const body = payload as unknown as Payload;
+  const email = normalizeEmail(body.customer?.email || "");
+  const emailHash = email ? hashValue(email) : "";
+
+  if (emailHash) {
+    const media = await prisma.reviewMedia.findMany({
+      where: { review: { shop, reviewerEmailHash: emailHash } },
+      select: { publicId: true, type: true },
+    });
+    await destroyMediaAssets(media);
+    await prisma.$transaction([
+      prisma.review.deleteMany({
+        where: { shop, reviewerEmailHash: emailHash },
+      }),
+      prisma.reviewRequest.deleteMany({
+        where: { shop, emailHash },
+      }),
+      prisma.emailSuppression.deleteMany({
+        where: { shop, emailHash },
+      }),
+      prisma.privacyRequest.deleteMany({
+        where: {
+          shop,
+          topic: "CUSTOMERS_DATA_REQUEST",
+          summary: { contains: emailHash },
+        },
+      }),
+    ]);
+  }
+
+  await prisma.privacyRequest.create({
+    data: {
+      shop,
+      topic: "CUSTOMERS_REDACT",
+      requestId: body.customer?.id ? String(body.customer.id) : null,
+      status: "COMPLETED",
+      summary: JSON.stringify({
+        ordersToRedact: body.orders_to_redact ?? [],
+        emailHash: emailHash || null,
+      }),
+      completedAt: new Date(),
+    },
+  });
+
+  return new Response();
+};
