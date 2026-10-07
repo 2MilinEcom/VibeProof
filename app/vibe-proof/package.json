@@ -19,7 +19,9 @@
     "prisma": "prisma",
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
-    "typecheck": "react-router typegen && tsc --noEmit"
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "build:production": "prisma generate --schema prisma-postgres/schema.prisma && react-router build",
+    "migrate:production": "prisma migrate deploy --schema prisma-postgres/schema.prisma"
   },
   "type": "module",
   "engines": {
