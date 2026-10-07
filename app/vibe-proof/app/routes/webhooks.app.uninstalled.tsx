@@ -22,6 +22,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     db.reviewRequest.deleteMany({ where: { shop } }),
     db.mediaUpload.deleteMany({ where: { shop } }),
     db.importJob.deleteMany({ where: { shop } }),
+    db.emailSuppression.deleteMany({ where: { shop } }),
+    db.rateLimitBucket.deleteMany({ where: { key: { contains: shop } } }),
     db.analyticsEvent.deleteMany({ where: { shop } }),
     db.productConfig.deleteMany({ where: { shop } }),
     db.widgetTheme.deleteMany({ where: { shop } }),
