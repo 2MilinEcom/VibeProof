@@ -135,7 +135,7 @@ export default function SettingsPage() {
               defaultChecked={config.aiEnabled}
             ></s-checkbox>
             <s-number-field
-              label="Data retention days"
+              label="Analytics retention days"
               name="retentionDays"
               min={30}
               max={3650}
