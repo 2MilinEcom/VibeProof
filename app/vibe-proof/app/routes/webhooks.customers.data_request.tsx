@@ -52,7 +52,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       requestId: body.data_request?.id ? String(body.data_request.id) : null,
       status: "READY",
       summary: JSON.stringify({
-        email,
+        emailHash: emailHash || null,
         ordersRequested: body.orders_requested ?? [],
         reviews,
         reviewRequests,
