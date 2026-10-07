@@ -499,6 +499,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     const verifiedFromRequest = Boolean(
+      settings.autoVerifyOrders &&
       reviewRequest &&
         reviewRequest.shop === shop &&
         reviewRequest.productHandle === productHandle &&
