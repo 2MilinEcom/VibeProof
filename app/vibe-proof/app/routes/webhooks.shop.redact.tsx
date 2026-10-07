@@ -22,6 +22,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     prisma.mediaUpload.deleteMany({ where: { shop } }),
     prisma.importJob.deleteMany({ where: { shop } }),
     prisma.emailSuppression.deleteMany({ where: { shop } }),
+    prisma.rateLimitBucket.deleteMany({ where: { key: { contains: shop } } }),
+    prisma.emailSuppression.deleteMany({ where: { shop } }),
     prisma.analyticsEvent.deleteMany({ where: { shop } }),
     prisma.productConfig.deleteMany({ where: { shop } }),
     prisma.widgetTheme.deleteMany({ where: { shop } }),
