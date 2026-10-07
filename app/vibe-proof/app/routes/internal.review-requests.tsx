@@ -99,7 +99,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     try {
       await sendReviewRequestEmail({
-        to: item.customerEmail,
+        to: decryptSecret(item.customerEmailCiphertext),
         shop: item.shop,
         productTitle: item.productTitle || "your purchase",
         reviewUrl,
