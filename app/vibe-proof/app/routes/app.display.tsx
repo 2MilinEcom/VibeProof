@@ -16,7 +16,11 @@ const defaultTheme = {
   showVerified: true,
   showHelpful: true,
   showMerchantReplies: true,
+  showFilters: true,
+  showRatingBreakdown: true,
+  autoplayVideo: false,
   autoMatch: true,
+  defaultSort: "FEATURED",
 };
 
 type ProductsResponse = {
@@ -92,7 +96,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       showVerified: formData.has("showVerified"),
       showHelpful: formData.has("showHelpful"),
       showMerchantReplies: formData.has("showMerchantReplies"),
+      showFilters: formData.has("showFilters"),
+      showRatingBreakdown: formData.has("showRatingBreakdown"),
+      autoplayVideo: formData.has("autoplayVideo"),
       autoMatch: formData.has("autoMatch"),
+      defaultSort: String(formData.get("defaultSort") || "FEATURED"),
     };
 
     await prisma.widgetTheme.upsert({
@@ -248,6 +256,29 @@ export default function DisplayPage() {
               value="on"
               defaultChecked={theme.showMerchantReplies}
             ></s-checkbox>
+            <s-checkbox
+              label="Show rating breakdown"
+              name="showRatingBreakdown"
+              value="on"
+              defaultChecked={theme.showRatingBreakdown}
+            ></s-checkbox>
+            <s-checkbox
+              label="Show shopper sort and filters"
+              name="showFilters"
+              value="on"
+              defaultChecked={theme.showFilters}
+            ></s-checkbox>
+            <s-checkbox
+              label="Autoplay muted review videos"
+              name="autoplayVideo"
+              value="on"
+              defaultChecked={theme.autoplayVideo}
+            ></s-checkbox>
+            <s-select label="Default review sort" name="defaultSort" value={theme.defaultSort}>
+              <s-option value="FEATURED">Featured</s-option>
+              <s-option value="NEWEST">Newest</s-option>
+              <s-option value="HELPFUL">Most helpful</s-option>
+            </s-select>
 
             <s-button type="submit" variant="primary">
               Save storefront style
@@ -278,6 +309,12 @@ export default function DisplayPage() {
               </s-badge>
               <s-badge tone={theme.showMerchantReplies ? "success" : "neutral"}>
                 Replies {theme.showMerchantReplies ? "on" : "off"}
+              </s-badge>
+              <s-badge tone={theme.showFilters ? "success" : "neutral"}>
+                Filters {theme.showFilters ? "on" : "off"}
+              </s-badge>
+              <s-badge tone={theme.showRatingBreakdown ? "success" : "neutral"}>
+                Breakdown {theme.showRatingBreakdown ? "on" : "off"}
               </s-badge>
             </s-stack>
           </s-stack>
