@@ -212,3 +212,35 @@
     grid-column: auto;
   }
 }
+
+
+.vibeproof-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.vibeproof-gallery-item {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--vp-border);
+  border-radius: var(--vp-radius);
+  background: var(--vp-bg);
+}
+
+.vibeproof-gallery-item img,
+.vibeproof-gallery-item video {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--vp-media-ratio, 4 / 5);
+  object-fit: cover;
+  background: #000;
+}
+
+.vibeproof-gallery-item figcaption {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 10px;
+  font-size: 12px;
+}
