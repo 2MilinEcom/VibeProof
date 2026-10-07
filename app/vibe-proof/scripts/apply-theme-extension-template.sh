@@ -19,13 +19,27 @@ fi
 
 mkdir -p "$TARGET/blocks" "$TARGET/assets"
 
-# Remove the generated sample block/assets while preserving Shopify's
-# extension config, locales, and directory structure.
+# Remove generated sample files while preserving Shopify's extension config
+# and locale files.
 find "$TARGET/blocks" -maxdepth 1 -type f -name '*.liquid' -delete
 find "$TARGET/assets" -maxdepth 1 -type f -delete
+rm -f "$TARGET/snippets/stars.liquid"
 
 cp "$SOURCE"/blocks/*.liquid "$TARGET/blocks/"
 cp "$SOURCE"/assets/* "$TARGET/assets/"
 
+ESBUILD="$APP_ROOT/node_modules/.bin/esbuild"
+if [ ! -x "$ESBUILD" ]; then
+  echo "esbuild was not found at $ESBUILD"
+  echo "Run npm install from $APP_ROOT, then rerun this script."
+  exit 1
+fi
+
+"$ESBUILD" "$TARGET/assets/vibeproof.js"   --minify   --outfile="$TARGET/assets/vibeproof.min.js"
+
+mv "$TARGET/assets/vibeproof.min.js" "$TARGET/assets/vibeproof.js"
+
 echo "Applied VibeProof theme app extension files to:"
 echo "  $TARGET"
+echo
+wc -c "$TARGET/assets/vibeproof.js"
