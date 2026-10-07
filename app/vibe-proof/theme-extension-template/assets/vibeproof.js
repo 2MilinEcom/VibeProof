@@ -127,7 +127,20 @@
       Math.min(20, Number(root.dataset.vibeproofLimit || "8")),
     );
 
-    data.reviews.slice(0, limit).forEach((review) => {
+    const reviewList =
+      theme.layout === "VIDEO_FIRST"
+        ? [...data.reviews].sort((a, b) => {
+            const aVideo = (a.media || []).some((item) =>
+              String(item.type || "").toLowerCase().includes("video"),
+            );
+            const bVideo = (b.media || []).some((item) =>
+              String(item.type || "").toLowerCase().includes("video"),
+            );
+            return Number(bVideo) - Number(aVideo);
+          })
+        : data.reviews;
+
+    reviewList.slice(0, limit).forEach((review) => {
       const card = document.createElement("article");
       card.className = "vibeproof-card";
 
