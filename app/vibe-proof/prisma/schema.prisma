@@ -1,5 +1,3 @@
-// This is your Prisma schema file.
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -30,13 +28,14 @@ model Session {
 }
 
 model Review {
-  id            String  @id @default(cuid())
-  shop          String
-  productId     String
-  productHandle String?
-  productTitle  String?
-  variantId     String?
-  variantTitle  String?
+  id              String  @id @default(cuid())
+  shop            String
+  productId       String
+  productHandle   String?
+  productTitle    String?
+  variantId       String?
+  variantTitle    String?
+  reviewRequestId String?
 
   rating        Int
   title         String?
@@ -50,10 +49,14 @@ model Review {
   helpfulCount     Int     @default(0)
   featured         Boolean @default(false)
   demoBatchId      String?
+  spamScore        Int     @default(0)
+  moderationNote   String?
+  language         String?
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   publishedAt DateTime?
+  editedAt    DateTime?
 
   media         ReviewMedia[]
   merchantReply MerchantReply?
@@ -64,20 +67,26 @@ model Review {
   @@index([shop, source])
   @@index([shop, featured])
   @@index([shop, createdAt])
+  @@index([reviewRequestId])
 }
 
 model ReviewMedia {
-  id        String   @id @default(cuid())
-  reviewId  String
-  type      String
-  url       String
-  altText   String?
-  position  Int      @default(0)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  reviewId   String
+  type       String
+  url        String?
+  storageKey String?
+  mimeType   String?
+  bytes      Int?
+  altText    String?
+  status     String   @default("READY")
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@index([reviewId, position])
+  @@index([status])
 }
 
 model MerchantReply {
@@ -92,18 +101,21 @@ model MerchantReply {
 }
 
 model CollectionSettings {
-  id                  String   @id @default(cuid())
-  shop                String   @unique
-  collectRating       Boolean  @default(true)
-  collectTitle        Boolean  @default(true)
-  collectBody         Boolean  @default(true)
-  collectEmail        Boolean  @default(true)
-  collectPhoto        Boolean  @default(true)
-  collectVideo        Boolean  @default(false)
-  requireEmail        Boolean  @default(true)
-  autoApproveFiveStar Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  shop                  String   @unique
+  collectRating         Boolean  @default(true)
+  collectTitle          Boolean  @default(true)
+  collectBody           Boolean  @default(true)
+  collectEmail          Boolean  @default(true)
+  collectPhoto          Boolean  @default(true)
+  collectVideo          Boolean  @default(true)
+  requireEmail          Boolean  @default(true)
+  autoApproveFiveStar   Boolean  @default(false)
+  reviewRequestsEnabled Boolean  @default(false)
+  requestDelayHours     Int      @default(48)
+  requestExpiryDays     Int      @default(30)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model WidgetTheme {
@@ -144,14 +156,97 @@ model ProductConfig {
 }
 
 model AnalyticsEvent {
-  id        String   @id @default(cuid())
-  shop      String
-  type      String
-  productId String?
-  reviewId  String?
-  metadata  String?
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  shop        String
+  type        String
+  productId   String?
+  reviewId    String?
+  visitorHash String?
+  eventKey    String?  @unique
+  metadata    String?
+  createdAt   DateTime @default(now())
 
   @@index([shop, createdAt])
   @@index([shop, type, createdAt])
+  @@index([shop, productId, createdAt])
+}
+
+model HelpfulVote {
+  id        String   @id @default(cuid())
+  shop      String
+  reviewId  String
+  voterHash String
+  createdAt DateTime @default(now())
+
+  @@unique([reviewId, voterHash])
+  @@index([shop, createdAt])
+  @@index([reviewId])
+}
+
+model ReviewRequest {
+  id             String   @id @default(cuid())
+  shop           String
+  tokenHash      String   @unique
+  tokenEncrypted String
+  emailHash      String
+  emailEncrypted String
+  orderId        String?
+  productId      String
+  productHandle  String?
+  productTitle   String?
+  variantId      String?
+  variantTitle   String?
+  status         String   @default("PENDING")
+  sendAfter      DateTime
+  expiresAt      DateTime
+  sentAt         DateTime?
+  openedAt       DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([shop, status, sendAfter])
+  @@index([shop, orderId])
+  @@index([shop, productId])
+}
+
+model ImportJob {
+  id           String   @id @default(cuid())
+  shop         String
+  filename     String
+  status       String   @default("PROCESSING")
+  totalRows    Int      @default(0)
+  importedRows Int      @default(0)
+  skippedRows  Int      @default(0)
+  errorsJson   String?
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
+
+  @@index([shop, createdAt])
+}
+
+model PrivacyRequest {
+  id            String   @id @default(cuid())
+  shop          String
+  requestId     String
+  type          String   @default("DATA_REQUEST")
+  customerEmail String?
+  payloadJson   String?
+  status        String   @default("PENDING")
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  @@unique([shop, requestId])
+  @@index([shop, status, createdAt])
+}
+
+model RateLimitBucket {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
 }
