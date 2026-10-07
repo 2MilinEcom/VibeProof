@@ -179,6 +179,46 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     };
   }
 
+  if (intent === "design_prompt") {
+    const prompt = String(formData.get("designPrompt") || "")
+      .trim()
+      .toLowerCase();
+
+    if (!prompt) {
+      return { ok: false, message: "Enter a design direction." };
+    }
+
+    const presetName =
+      prompt.includes("pink") ||
+      prompt.includes("soft") ||
+      prompt.includes("girly") ||
+      prompt.includes("romantic")
+        ? "SOFT_GIRL"
+        : prompt.includes("dark") ||
+            prompt.includes("black") ||
+            prompt.includes("night") ||
+            prompt.includes("moody")
+          ? "AFTER_DARK"
+          : "SPOILD_NATIVE";
+
+    const preset = presetMap[presetName];
+
+    await prisma.widgetTheme.upsert({
+      where: { shop: session.shop },
+      create: {
+        shop: session.shop,
+        ...preset,
+      },
+      update: preset,
+    });
+
+    return {
+      ok: true,
+      message:
+        "Design prompt mapped to constrained VibeProof tokens. Review the result in Display before publishing.",
+    };
+  }
+
   if (intent === "draft_reply") {
     const tone = String(formData.get("tone") || "friendly");
     const excerpt = String(formData.get("excerpt") || "").trim();
@@ -293,6 +333,27 @@ export default function AIStudioPage() {
             <s-button type="submit" variant="secondary">After Dark</s-button>
           </Form>
         </s-stack>
+      </s-section>
+
+      <s-section heading="Design prompt">
+        <s-paragraph>
+          Describe a direction in plain language. VibeProof maps it to safe design
+          tokens only; it never generates arbitrary CSS.
+        </s-paragraph>
+
+        <Form method="post">
+          <input type="hidden" name="intent" value="design_prompt" />
+          <s-grid gridTemplateColumns="1fr auto" gap="base" alignItems="end">
+            <s-text-field
+              label="Design direction"
+              name="designPrompt"
+              placeholder="Soft pink, romantic, social and elevated"
+            ></s-text-field>
+            <s-button type="submit" variant="secondary">
+              Suggest appearance
+            </s-button>
+          </s-grid>
+        </Form>
       </s-section>
 
       <s-section heading="Merchant reply draft">
