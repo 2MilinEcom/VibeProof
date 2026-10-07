@@ -6,16 +6,17 @@
   data-vibeproof-product-title="{{ product.title | escape }}"
   data-vibeproof-heading="{{ block.settings.heading | escape }}"
   data-vibeproof-limit="{{ block.settings.max_items }}"
+  {{ block.shopify_attributes }}
 >
   <span class="vibeproof-loading">Loading customer media…</span>
 </div>
 
 {% schema %}
 {
-  "name": "VibeProof UGC gallery",
+  "name": "UGC gallery",
   "target": "section",
   "stylesheet": "vibeproof.css",
-  "javascript": "vibeproof.js",
+  "javascript": "vibeproof-gallery.js",
   "enabled_on": {
     "templates": ["product"]
   },
