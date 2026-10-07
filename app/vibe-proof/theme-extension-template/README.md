@@ -1,32 +1,35 @@
-# VibeProof theme extension template
+# VibeProof Theme App Extension source
 
-These files are the implementation for the VibeProof Theme App Extension.
+This directory is the reusable source for the committed
+`extensions/vibeproof-reviews` Theme App Extension.
 
-Shopify requires theme app extensions to be scaffolded with Shopify CLI. From the
-app root, run:
+The extension exposes four product-template app blocks:
 
-```bash
-shopify app generate extension
-```
+- VibeProof rating bar
+- VibeProof review feed
+- VibeProof review form
+- VibeProof UGC gallery
 
-Choose **Theme app extension** and name it **vibeproof-reviews**. Then apply the
-prepared VibeProof files:
+The storefront JavaScript is split into small modules:
+
+- `vibeproof.js` loads the block-specific module.
+- `vibeproof-feed.js` handles ratings, sort/filter controls, UGC, lightbox,
+  helpful votes, sharing, and review engagement events.
+- `vibeproof-form.js` handles review submission, signed photo/video uploads,
+  signed post-purchase request context, and submission analytics.
+
+Re-apply the source to the generated extension with:
 
 ```bash
 bash scripts/apply-theme-extension-template.sh
 ```
 
-The prepared extension includes:
+Then validate:
 
-- Rating bar app block
-- Social review feed app block
-- Review submission form app block
-- Responsive social-style CSS
-- Storefront JavaScript using the authenticated `/apps/vibeproof` app proxy
+```bash
+shopify app build
+```
 
-The public API only returns approved genuine reviews. `AI_DEMO`, `TEST`,
-pending, and rejected content never appears in the storefront feed or public rating.
-
-Media display is already supported for ReviewMedia URLs. Direct customer file
-upload still requires a production object-storage provider and is intentionally
-not faked by this template.
+Public storefront review queries return only APPROVED genuine review sources.
+AI_DEMO, TEST, pending, rejected, and spam content is never returned as genuine
+storefront social proof.
