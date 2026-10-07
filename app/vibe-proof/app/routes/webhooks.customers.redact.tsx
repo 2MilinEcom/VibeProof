@@ -5,9 +5,8 @@ import { authenticate } from "../shopify.server";
 import { hashValue, normalizeEmail } from "../lib/security.server";
 
 type Payload = {
-  customer?: { email?: string | null };
-  orders_to_redact?: Array<string | number>;
   customer?: { id?: string | number; email?: string | null };
+  orders_to_redact?: Array<string | number>;
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
