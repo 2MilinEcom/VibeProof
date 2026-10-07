@@ -204,6 +204,85 @@
     root.append(cards);
   };
 
+
+  const renderGallery = (root, data) => {
+    root.replaceChildren();
+    if (!data.enabled) return;
+
+    const theme = data.theme || {};
+    applyTheme(root, theme);
+
+    root.append(
+      text(
+        "h2",
+        "vibeproof-heading",
+        (root.dataset.vibeproofHeading || "").trim() || "SEEN ON THE GIRLIES",
+      ),
+    );
+
+    const media = [];
+    (data.reviews || []).forEach((review) => {
+      (review.media || []).forEach((item) => {
+        if (item && item.url) {
+          media.push({
+            ...item,
+            reviewerName: review.reviewerName || "Customer",
+            rating: review.rating,
+          });
+        }
+      });
+    });
+
+    const limit = Math.max(
+      2,
+      Math.min(20, Number(root.dataset.vibeproofLimit || "8")),
+    );
+
+    if (!media.length) {
+      root.append(
+        text(
+          "div",
+          "vibeproof-empty",
+          "Customer media will appear here once photo or video reviews are available.",
+        ),
+      );
+      return;
+    }
+
+    const grid = document.createElement("div");
+    grid.className = "vibeproof-gallery";
+
+    media.slice(0, limit).forEach((item) => {
+      const figure = document.createElement("figure");
+      figure.className = "vibeproof-gallery-item";
+
+      if (String(item.type || "").toLowerCase().includes("video")) {
+        const video = document.createElement("video");
+        video.src = item.url;
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        figure.append(video);
+      } else {
+        const image = document.createElement("img");
+        image.src = item.url;
+        image.alt = item.altText || "Customer review media";
+        image.loading = "lazy";
+        figure.append(image);
+      }
+
+      const caption = document.createElement("figcaption");
+      caption.append(text("strong", "", item.reviewerName));
+      caption.append(document.createTextNode(" · "));
+      caption.append(stars(item.rating));
+      figure.append(caption);
+
+      grid.append(figure);
+    });
+
+    root.append(grid);
+  };
+
   const field = (labelText, input) => {
     const label = document.createElement("label");
     label.append(text("span", "", labelText));
@@ -350,6 +429,8 @@
         renderRating(root, data);
       } else if (root.dataset.vibeproofMode === "form") {
         renderForm(root, data);
+      } else if (root.dataset.vibeproofMode === "gallery") {
+        renderGallery(root, data);
       } else {
         renderFeed(root, data);
       }
