@@ -24,6 +24,9 @@ export default function App() {
         <s-link href="/app/display">Display</s-link>
         <s-link href="/app/ai-studio">AI Studio</s-link>
         <s-link href="/app/analytics">Analytics</s-link>
+        <s-link href="/app/imports">Imports</s-link>
+        <s-link href="/app/privacy">Privacy</s-link>
+        <s-link href="/app/settings">Settings</s-link>
       </s-app-nav>
 
       <Outlet />
