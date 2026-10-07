@@ -1,0 +1,22 @@
+<div
+  class="vibeproof-root vibeproof-rating"
+  data-vibeproof-mode="rating"
+  data-vibeproof-product-id="gid://shopify/Product/{{ product.id }}"
+  data-vibeproof-product-handle="{{ product.handle | escape }}"
+  data-vibeproof-product-title="{{ product.title | escape }}"
+>
+  <span class="vibeproof-loading">Loading reviews…</span>
+</div>
+
+{% schema %}
+{
+  "name": "VibeProof rating bar",
+  "target": "section",
+  "stylesheet": "vibeproof.css",
+  "javascript": "vibeproof.js",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": []
+}
+{% endschema %}
