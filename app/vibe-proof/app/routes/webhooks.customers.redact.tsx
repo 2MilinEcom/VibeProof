@@ -32,6 +32,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       prisma.emailSuppression.deleteMany({
         where: { shop, emailHash },
       }),
+      prisma.privacyRequest.deleteMany({
+        where: {
+          shop,
+          topic: "CUSTOMERS_DATA_REQUEST",
+          summary: { contains: emailHash },
+        },
+      }),
     ]);
   }
 
