@@ -48,15 +48,21 @@ model Review {
   status           String  @default("PENDING")
   source           String  @default("CUSTOMER")
   helpfulCount     Int     @default(0)
+  featured         Boolean @default(false)
+  demoBatchId      String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
 
   media         ReviewMedia[]
   merchantReply MerchantReply?
 
   @@index([shop, productId])
+  @@index([shop, productHandle])
   @@index([shop, status])
+  @@index([shop, source])
+  @@index([shop, featured])
   @@index([shop, createdAt])
 }
 
@@ -83,4 +89,69 @@ model MerchantReply {
   updatedAt    DateTime @updatedAt
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+model CollectionSettings {
+  id                  String   @id @default(cuid())
+  shop                String   @unique
+  collectRating       Boolean  @default(true)
+  collectTitle        Boolean  @default(true)
+  collectBody         Boolean  @default(true)
+  collectEmail        Boolean  @default(true)
+  collectPhoto        Boolean  @default(true)
+  collectVideo        Boolean  @default(false)
+  requireEmail        Boolean  @default(true)
+  autoApproveFiveStar Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model WidgetTheme {
+  id                  String   @id @default(cuid())
+  shop                String   @unique
+  layout              String   @default("SOCIAL_FEED")
+  heading             String   @default("THE GIRLIES SAID IT BEST")
+  accentColor         String   @default("#111111")
+  backgroundColor     String   @default("#FFFFFF")
+  textColor           String   @default("#111111")
+  borderColor         String   @default("#E5E7EB")
+  radius              Int      @default(18)
+  mediaRatio          String   @default("4/5")
+  showVerified        Boolean  @default(true)
+  showHelpful         Boolean  @default(true)
+  showMerchantReplies Boolean  @default(true)
+  autoMatch           Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model ProductConfig {
+  id                  String   @id @default(cuid())
+  shop                String
+  productId           String
+  productHandle       String?
+  productTitle        String?
+  enabled             Boolean  @default(true)
+  layoutOverride      String?
+  headingOverride     String?
+  accentColorOverride String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([shop, productId])
+  @@index([shop, productHandle])
+  @@index([shop, enabled])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  shop      String
+  type      String
+  productId String?
+  reviewId  String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([shop, createdAt])
+  @@index([shop, type, createdAt])
 }
