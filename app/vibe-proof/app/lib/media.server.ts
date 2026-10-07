@@ -160,3 +160,56 @@ export async function consumeMediaUpload(input: {
     durationMs: input.durationMs ?? null,
   };
 }
+
+
+export async function destroyMediaAsset(input: {
+  publicId: string;
+  type: string;
+}) {
+  const config = cloudinaryConfig();
+  if (!config.enabled || !input.publicId) return false;
+
+  const resourceType = input.type === "VIDEO" ? "video" : "image";
+  const timestamp = Math.floor(Date.now() / 1000);
+  const signatureBase = `public_id=${input.publicId}&timestamp=${timestamp}`;
+  const signature = crypto
+    .createHash("sha1")
+    .update(signatureBase + config.apiSecret)
+    .digest("hex");
+
+  const body = new URLSearchParams({
+    public_id: input.publicId,
+    timestamp: String(timestamp),
+    api_key: config.apiKey,
+    signature,
+  });
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${config.cloudName}/${resourceType}/destroy`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+      },
+      body,
+    },
+  );
+
+  return response.ok;
+}
+
+export async function destroyMediaAssets(
+  items: Array<{ publicId: string | null; type: string }>,
+) {
+  for (const item of items) {
+    if (!item.publicId) continue;
+    try {
+      await destroyMediaAsset({
+        publicId: item.publicId,
+        type: item.type,
+      });
+    } catch {
+      // Privacy cleanup continues even if the media provider is temporarily unavailable.
+    }
+  }
+}
