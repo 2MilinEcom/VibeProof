@@ -5,6 +5,10 @@ on:
     branches: ["launch-ready", "main"]
   pull_request:
 
+concurrency:
+  group: vibeproof-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
