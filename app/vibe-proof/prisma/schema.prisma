@@ -1,0 +1,86 @@
+// This is your Prisma schema file.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model Review {
+  id            String  @id @default(cuid())
+  shop          String
+  productId     String
+  productHandle String?
+  productTitle  String?
+  variantId     String?
+  variantTitle  String?
+
+  rating        Int
+  title         String?
+  body          String
+  reviewerName  String
+  reviewerEmail String?
+
+  verifiedPurchase Boolean @default(false)
+  status           String  @default("PENDING")
+  source           String  @default("CUSTOMER")
+  helpfulCount     Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  media         ReviewMedia[]
+  merchantReply MerchantReply?
+
+  @@index([shop, productId])
+  @@index([shop, status])
+  @@index([shop, createdAt])
+}
+
+model ReviewMedia {
+  id        String   @id @default(cuid())
+  reviewId  String
+  type      String
+  url       String
+  altText   String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId, position])
+}
+
+model MerchantReply {
+  id           String   @id @default(cuid())
+  reviewId     String   @unique
+  body         String
+  merchantName String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}

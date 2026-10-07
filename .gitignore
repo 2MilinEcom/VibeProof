@@ -1,0 +1,9 @@
+app/vibe-proof/node_modules/
+app/vibe-proof/.shopify/
+app/vibe-proof/.env
+app/vibe-proof/.env.*
+!app/vibe-proof/.env.example
+app/vibe-proof/prisma/dev.sqlite
+app/vibe-proof/prisma/dev.sqlite-journal
+app/vibe-proof/build/
+app/vibe-proof/.react-router/
