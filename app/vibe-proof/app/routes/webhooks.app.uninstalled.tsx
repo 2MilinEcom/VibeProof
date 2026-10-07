@@ -7,14 +7,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   console.log(`Received ${topic} webhook for ${shop}`);
 
-  await db.$transaction([
-    db.analyticsEvent.deleteMany({ where: { shop } }),
-    db.productConfig.deleteMany({ where: { shop } }),
-    db.widgetTheme.deleteMany({ where: { shop } }),
-    db.collectionSettings.deleteMany({ where: { shop } }),
-    db.review.deleteMany({ where: { shop } }),
-    db.session.deleteMany({ where: { shop } }),
-  ]);
+  // Shopify sends shop/redact after uninstall. Keep merchant/customer data until
+  // that compliance event so stored media can be removed safely, but immediately
+  // remove app sessions so the uninstalled shop cannot keep using admin access.
+  await db.session.deleteMany({ where: { shop } });
 
   return new Response();
 };
