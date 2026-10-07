@@ -6,16 +6,18 @@
   data-vibeproof-product-title="{{ product.title | escape }}"
   data-vibeproof-limit="{{ block.settings.max_reviews }}"
   data-vibeproof-heading="{{ block.settings.heading | escape }}"
+  data-vibeproof-filters="{{ block.settings.show_filters }}"
+  {{ block.shopify_attributes }}
 >
   <span class="vibeproof-loading">Loading reviews…</span>
 </div>
 
 {% schema %}
 {
-  "name": "VibeProof review feed",
+  "name": "Review feed",
   "target": "section",
   "stylesheet": "vibeproof.css",
-  "javascript": "vibeproof.js",
+  "javascript": "vibeproof-feed.js",
   "enabled_on": {
     "templates": ["product"]
   },
@@ -33,6 +35,12 @@
       "max": 20,
       "step": 1,
       "default": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show rating filters",
+      "default": true
     }
   ]
 }
