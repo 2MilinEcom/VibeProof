@@ -4,6 +4,7 @@
   data-vibeproof-product-id="gid://shopify/Product/{{ product.id }}"
   data-vibeproof-product-handle="{{ product.handle | escape }}"
   data-vibeproof-product-title="{{ product.title | escape }}"
+  data-vibeproof-script="{{ 'vibeproof-feed.js' | asset_url }}"
 >
   <span class="vibeproof-loading">Loading reviews…</span>
 </div>
@@ -14,9 +15,7 @@
   "target": "section",
   "stylesheet": "vibeproof.css",
   "javascript": "vibeproof.js",
-  "enabled_on": {
-    "templates": ["product"]
-  },
+  "enabled_on": { "templates": ["product"] },
   "settings": []
 }
 {% endschema %}
