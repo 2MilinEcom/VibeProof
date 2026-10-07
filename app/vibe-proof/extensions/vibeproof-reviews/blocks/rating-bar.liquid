@@ -4,16 +4,17 @@
   data-vibeproof-product-id="gid://shopify/Product/{{ product.id }}"
   data-vibeproof-product-handle="{{ product.handle | escape }}"
   data-vibeproof-product-title="{{ product.title | escape }}"
+  {{ block.shopify_attributes }}
 >
   <span class="vibeproof-loading">Loading reviews…</span>
 </div>
 
 {% schema %}
 {
-  "name": "VibeProof rating bar",
+  "name": "Rating bar",
   "target": "section",
   "stylesheet": "vibeproof.css",
-  "javascript": "vibeproof.js",
+  "javascript": "vibeproof-rating.js",
   "enabled_on": {
     "templates": ["product"]
   },
