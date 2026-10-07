@@ -1,0 +1,41 @@
+name: VibeProof CI
+
+on:
+  push:
+    branches:
+      - build/full-mvp
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/vibe-proof
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/vibe-proof/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate development Prisma client
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build app
+        run: npm run build
+
+      - name: Validate Shopify app and theme extension
+        run: npx shopify app build
