@@ -106,6 +106,7 @@ model MediaUpload {
   id            String   @id @default(cuid())
   shop          String
   tokenHash     String   @unique
+  tokenCiphertext String
   publicId      String
   mimeType      String
   resourceType  String
