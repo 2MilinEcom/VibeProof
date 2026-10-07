@@ -7,15 +7,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { shop } = await authenticate.webhook(request);
 
   await prisma.$transaction([
-    prisma.helpfulVote.deleteMany({
-      where: { review: { shop } },
-    }),
-    prisma.reviewMedia.deleteMany({
-      where: { review: { shop } },
-    }),
-    prisma.merchantReply.deleteMany({
-      where: { review: { shop } },
-    }),
+    prisma.helpfulVote.deleteMany({ where: { review: { shop } } }),
+    prisma.reviewMedia.deleteMany({ where: { review: { shop } } }),
+    prisma.merchantReply.deleteMany({ where: { review: { shop } } }),
     prisma.review.deleteMany({ where: { shop } }),
     prisma.reviewRequest.deleteMany({ where: { shop } }),
     prisma.mediaUpload.deleteMany({ where: { shop } }),
@@ -25,20 +19,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     prisma.widgetTheme.deleteMany({ where: { shop } }),
     prisma.collectionSettings.deleteMany({ where: { shop } }),
     prisma.shopConfig.deleteMany({ where: { shop } }),
-    prisma.rateLimitBucket.deleteMany({
-      where: { key: { contains: shop } },
-    }),
+    prisma.privacyRequest.deleteMany({ where: { shop } }),
     prisma.session.deleteMany({ where: { shop } }),
   ]);
-
-  await prisma.privacyRequest.create({
-    data: {
-      shop,
-      topic: "SHOP_REDACT",
-      status: "COMPLETED",
-      completedAt: new Date(),
-    },
-  });
 
   return new Response();
 };
