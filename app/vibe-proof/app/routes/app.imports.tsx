@@ -172,7 +172,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
       const createdAtRaw = value(row, fields.createdAt);
       const createdAt = createdAtRaw ? new Date(createdAtRaw) : new Date();
-      const verifiedPurchase = yes(value(row, fields.verified));
+      const importedVerifiedClaim = yes(value(row, fields.verified));
       const mediaUrl = value(row, fields.mediaUrl).split(/[|;]/)[0]?.trim() || "";
 
       try {
@@ -188,8 +188,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             reviewerName: reviewerName.slice(0, 120),
             reviewerEmail: email || null,
             reviewerEmailHash: email ? hashValue(email) : null,
-            verifiedPurchase,
-            verifiedAt: verifiedPurchase ? createdAt : null,
+            verifiedPurchase: false,
+            verifiedAt: null,
+            moderationNotes: importedVerifiedClaim
+              ? "Import claimed verification; VibeProof did not independently verify this purchase."
+              : null,
             status,
             source: "MERCHANT_IMPORT",
             publishedAt: status === "APPROVED" ? createdAt : null,
