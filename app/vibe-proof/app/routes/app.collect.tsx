@@ -89,12 +89,14 @@ export default function CollectPage() {
               name="collectPhoto"
               value="on"
               defaultChecked={settings.collectPhoto}
+              details="The data model and display pipeline are ready. Direct customer file upload still needs a production media-storage provider."
             ></s-checkbox>
             <s-checkbox
               label="Video reviews"
               name="collectVideo"
               value="on"
               defaultChecked={settings.collectVideo}
+              details="Video display is supported once media URLs exist. Direct customer video upload is not enabled until storage is connected."
             ></s-checkbox>
             <s-checkbox
               label="Require email"
