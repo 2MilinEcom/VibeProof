@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
+import { destroyMediaAssets } from "../lib/media.server";
 import { hashValue, normalizeEmail } from "../lib/security.server";
 
 type Payload = {
@@ -16,6 +17,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const emailHash = email ? hashValue(email) : "";
 
   if (emailHash) {
+    const media = await prisma.reviewMedia.findMany({
+      where: { review: { shop, reviewerEmailHash: emailHash } },
+      select: { publicId: true, type: true },
+    });
+    await destroyMediaAssets(media);
     await prisma.$transaction([
       prisma.review.deleteMany({
         where: { shop, reviewerEmailHash: emailHash },
