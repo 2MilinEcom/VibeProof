@@ -30,7 +30,7 @@ CREATE TABLE "ReviewRequest" (
     "productTitle" TEXT,
     "variantId" TEXT,
     "variantTitle" TEXT,
-    "customerEmail" TEXT NOT NULL,
+    "customerEmailCiphertext" TEXT NOT NULL,
     "emailHash" TEXT NOT NULL,
     "tokenHash" TEXT NOT NULL,
     "tokenCiphertext" TEXT NOT NULL,
