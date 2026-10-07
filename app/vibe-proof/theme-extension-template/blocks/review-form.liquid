@@ -1,10 +1,12 @@
 <div
+  id="vibeproof-review-form"
   class="vibeproof-root vibeproof-form-host"
   data-vibeproof-mode="form"
   data-vibeproof-product-id="gid://shopify/Product/{{ product.id }}"
   data-vibeproof-product-handle="{{ product.handle | escape }}"
   data-vibeproof-product-title="{{ product.title | escape }}"
   data-vibeproof-heading="{{ block.settings.heading | escape }}"
+  data-vibeproof-script="{{ 'vibeproof-form.js' | asset_url }}"
 >
   <span class="vibeproof-loading">Loading review form…</span>
 </div>
@@ -15,16 +17,9 @@
   "target": "section",
   "stylesheet": "vibeproof.css",
   "javascript": "vibeproof.js",
-  "enabled_on": {
-    "templates": ["product"]
-  },
+  "enabled_on": { "templates": ["product"] },
   "settings": [
-    {
-      "type": "text",
-      "id": "heading",
-      "label": "Form heading",
-      "default": "Share your vibe"
-    }
+    { "type": "text", "id": "heading", "label": "Form heading", "default": "Share your vibe" }
   ]
 }
 {% endschema %}
