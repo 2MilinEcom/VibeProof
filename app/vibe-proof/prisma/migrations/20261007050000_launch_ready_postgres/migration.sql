@@ -33,6 +33,7 @@ CREATE TABLE "ReviewRequest" (
     "customerEmail" TEXT NOT NULL,
     "emailHash" TEXT NOT NULL,
     "tokenHash" TEXT NOT NULL,
+    "tokenCiphertext" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "reminderCount" INTEGER NOT NULL DEFAULT 0,
     "sendAfter" TIMESTAMP(3) NOT NULL,
