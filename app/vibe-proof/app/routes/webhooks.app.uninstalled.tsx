@@ -1,11 +1,18 @@
 import type { ActionFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
+import { destroyMediaAssets } from "../lib/media.server";
 import db from "../db.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { shop, topic } = await authenticate.webhook(request);
 
   console.log(`Received ${topic} webhook for ${shop}`);
+
+  const media = await db.reviewMedia.findMany({
+    where: { review: { shop } },
+    select: { publicId: true, type: true },
+  });
+  await destroyMediaAssets(media);
 
   await db.$transaction([
     db.helpfulVote.deleteMany({ where: { review: { shop } } }),
