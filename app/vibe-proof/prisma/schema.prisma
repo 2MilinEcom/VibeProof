@@ -106,7 +106,6 @@ model MediaUpload {
   id            String   @id @default(cuid())
   shop          String
   tokenHash     String   @unique
-  tokenCiphertext String
   publicId      String
   mimeType      String
   resourceType  String
@@ -215,6 +214,7 @@ model ReviewRequest {
   customerEmail String
   emailHash     String
   tokenHash     String   @unique
+  tokenCiphertext String
   status        String   @default("PENDING")
   reminderCount Int      @default(0)
   sendAfter     DateTime
