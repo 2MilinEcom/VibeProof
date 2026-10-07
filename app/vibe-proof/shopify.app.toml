@@ -2,11 +2,11 @@
 
 client_id = "6e6e794b28e183053ce14209502b2f15"
 name = "VibeProof"
-application_url = "https://example.com"
+application_url = "https://vibeproof-app-production.up.railway.app"
 embedded = true
 
 [access_scopes]
-scopes = "read_products,write_app_proxy"
+scopes = "read_products,read_orders,write_app_proxy"
 
 [webhooks]
 api_version = "2026-07"
@@ -19,13 +19,31 @@ api_version = "2026-07"
   uri = "/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
 
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/orders/fulfilled"
+  topics = [ "orders/fulfilled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/data_request"
+  compliance_topics = [ "customers/data_request" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/customers/redact"
+  compliance_topics = [ "customers/redact" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/shop/redact"
+  compliance_topics = [ "shop/redact" ]
+
 [app_proxy]
 url = "/apps/vibeproof"
 prefix = "apps"
 subpath = "vibeproof"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://vibeproof-app-production.up.railway.app/auth/callback"
+]
 
 [build]
 include_config_on_deploy = true
