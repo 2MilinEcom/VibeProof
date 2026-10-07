@@ -41,11 +41,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         maxReminders: 1,
       };
 
-    const shopConfig = await prisma.shopConfig.findUnique({
-      where: { shop: item.shop },
-    });
+    const [shopConfig, suppression] = await Promise.all([
+      prisma.shopConfig.findUnique({ where: { shop: item.shop } }),
+      prisma.emailSuppression.findUnique({
+        where: {
+          shop_emailHash: {
+            shop: item.shop,
+            emailHash: item.emailHash,
+          },
+        },
+      }),
+    ]);
 
-    if (shopConfig?.emailRequestsEnabled === false) {
+    if (shopConfig?.emailRequestsEnabled === false || suppression) {
       skipped += 1;
       continue;
     }
@@ -77,6 +85,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const reviewUrl =
       `https://${item.shop}/products/${encodeURIComponent(item.productHandle)}` +
       `?vibeproof_request=${encodeURIComponent(token)}#vibeproof-review-form`;
+    const appUrl = (process.env.SHOPIFY_APP_URL || "").replace(/\/$/, "");
+    if (!appUrl) {
+      failed += 1;
+      await prisma.reviewRequest.update({
+        where: { id: item.id },
+        data: { lastError: "Missing SHOPIFY_APP_URL." },
+      });
+      continue;
+    }
+    const unsubscribeUrl =
+      `${appUrl}/review-unsubscribe?token=${encodeURIComponent(token)}`;
 
     try {
       await sendReviewRequestEmail({
@@ -84,6 +103,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         shop: item.shop,
         productTitle: item.productTitle || "your purchase",
         reviewUrl,
+        unsubscribeUrl,
         reminder: isReminder,
       });
 
