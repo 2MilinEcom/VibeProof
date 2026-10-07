@@ -146,12 +146,22 @@
 
       const media = review.media && review.media[0];
       if (media && media.url) {
-        const image = document.createElement("img");
-        image.className = "vibeproof-card-media";
-        image.src = media.url;
-        image.alt = media.altText || "Customer review media";
-        image.loading = "lazy";
-        card.append(image);
+        if (String(media.type || "").toLowerCase().includes("video")) {
+          const video = document.createElement("video");
+          video.className = "vibeproof-card-media";
+          video.src = media.url;
+          video.controls = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          card.append(video);
+        } else {
+          const image = document.createElement("img");
+          image.className = "vibeproof-card-media";
+          image.src = media.url;
+          image.alt = media.altText || "Customer review media";
+          image.loading = "lazy";
+          card.append(image);
+        }
       }
 
       const body = document.createElement("div");
