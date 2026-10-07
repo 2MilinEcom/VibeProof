@@ -122,7 +122,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         productTitle: item.product.title,
         variantId: item.variant?.id ?? null,
         variantTitle: item.variant?.title ?? null,
-        customerEmail: email,
+        customerEmailCiphertext: encryptSecret(email),
         emailHash,
         tokenHash: hashValue(token),
         tokenCiphertext: encryptSecret(token),
