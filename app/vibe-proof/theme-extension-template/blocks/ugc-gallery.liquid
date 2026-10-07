@@ -1,0 +1,40 @@
+<div
+  class="vibeproof-root vibeproof-gallery-host"
+  data-vibeproof-mode="gallery"
+  data-vibeproof-product-id="gid://shopify/Product/{{ product.id }}"
+  data-vibeproof-product-handle="{{ product.handle | escape }}"
+  data-vibeproof-product-title="{{ product.title | escape }}"
+  data-vibeproof-heading="{{ block.settings.heading | escape }}"
+  data-vibeproof-limit="{{ block.settings.max_items }}"
+>
+  <span class="vibeproof-loading">Loading customer media…</span>
+</div>
+
+{% schema %}
+{
+  "name": "VibeProof UGC gallery",
+  "target": "section",
+  "stylesheet": "vibeproof.css",
+  "javascript": "vibeproof.js",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Gallery heading",
+      "default": "SEEN ON THE GIRLIES"
+    },
+    {
+      "type": "range",
+      "id": "max_items",
+      "label": "Media items to show",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "default": 8
+    }
+  ]
+}
+{% endschema %}
