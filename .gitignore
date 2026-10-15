@@ -1,0 +1,11 @@
+
+
+# Local files
+.DS_Store
+**/__pycache__/
+*.pyc
+**/xcuserdata/
+.env
+.env.local
+node_modules/
+.next/
